@@ -1,5 +1,8 @@
 package burr;
 
+/**
+ * A driver class for the assignment
+ */
 public class Main {
 
   public static void main(String[] args) {
@@ -9,6 +12,9 @@ public class Main {
     p1.setHealth(100);
     p1.setMana(100);
     p1.setGold(50);
+    p1.equip("Sword", 100);
+    p1.equip("Armor", 500);
+    p1.equip("Shield", 50);
 
     Game g = new Game(p1);
 

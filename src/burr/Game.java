@@ -1,65 +1,103 @@
 package burr;
 
 import com.google.gson.Gson;
+import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 
 /**
- * Created by Matthew on 5/2/2017.
+ * Represents a Game with players
+ * @author Matthew Burr
+ * @version 1.0
+ * @since 2017-05-03
  */
 public class Game {
   private Player player;
+  private static Charset ENCODING = StandardCharsets.UTF_8;
 
+  /**
+   * Create a new Game
+   * @param player a player in the Game
+   */
   public Game(Player player) {
     this.player = player;
   }
 
+  /**
+   * Display the contents of the Game
+   */
   public void display() {
-    player.display();
+
+    if (null != player) {
+      player.display();
+    }
+    else {
+      System.out.println("<empty>");
+    }
   }
 
+  /**
+   * Save a game to a file
+   * @param filename name of the file where the game will be saved
+   */
   public void saveGame(String filename) {
-
     // Generate the JSON
     Gson gson = new Gson();
-    String data = gson.toJson(player);
+    Path path = Paths.get(filename);
+    Writer writer = null;
 
     // Following code is reproduced/based on StackOverflow post:
-    // http://stackoverflow.com/questions/2885173/how-do-i-create-a-file-and-write-to-it-in-java
     try {
-      PrintWriter pw = new PrintWriter(filename, "UTF-8");
-      pw.print(data);
-      pw.flush();
-      pw.close();
-    } catch (FileNotFoundException e) {
+      writer = Files.newBufferedWriter(path, ENCODING);
+      gson.toJson(player, writer);
+    } catch (IOException e) {
       e.printStackTrace();
-    } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
+    }
+
+    if (null != writer)
+    {
+      try {
+        writer.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
 
     return;
   }
 
+  /**
+   * Load a new Game from a file
+   * @param fileName file where the Game is stored
+   * @return the Game that was saved in the file
+   */
   public static Game loadGame(String fileName) {
+    Gson gson = new Gson();
     Path path = Paths.get(fileName);
-    Charset encoding = StandardCharsets.UTF_8;
-    StringBuilder rawData = new StringBuilder();
+    Reader reader = null;
+    Player player = null;
+
     try {
-      Files.lines(path, encoding).forEachOrdered(l -> { rawData.append(l); });
+      reader = Files.newBufferedReader(path, ENCODING);
+      player = gson.fromJson(reader, Player.class);
     } catch (IOException e) {
       e.printStackTrace();
     }
 
-    String data = rawData.toString();
-    Gson gson = new Gson();
-    Player player = gson.fromJson(data, Player.class);
+    if (null != reader) {
+      try {
+        reader.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+
     return new Game(player);
   }
 
