@@ -1,11 +1,23 @@
 package burr;
 
-import com.google.gson.Gson;
-
 public class Main {
 
   public static void main(String[] args) {
     // write your code here
-    Gson g = new Gson();
+    Player p1 = new Player();
+    p1.setName("Matthew");
+    p1.setHealth(100);
+    p1.setMana(100);
+    p1.setGold(50);
+
+    Game g = new Game(p1);
+
+    String saveFile = "mygame.json";
+
+    g.saveGame(saveFile);
+
+    Game g2 = Game.loadGame(saveFile);
+
+    g2.display();
   }
 }
